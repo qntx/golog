@@ -1,84 +1,36 @@
 # Golog
 
-A minimalist logging tool built on `zerolog`. Less is more.
+A minimalist, high-performance logging library built on [`zerolog`](https://github.com/rs/zerolog).
 
 ## Features
 
-* Levels: `Debug`, `Info`, `Warn`, `Error`, `Fatal`
-* Lightweight, efficient, extensible
+- Leveled logging: Trace, Debug, Info, Warn, Error, Fatal, Panic
+- Zero-allocation JSON logging
+- Configurable output: console, file, multi-writer
+- Dynamic level changes, timestamps, caller info
+
+## Installation
+
+```bash
+go get github.com/qntx/golog
+```
 
 ## Usage
 
-### 1. Basic - Log to Console
+See the [`examples/`](./examples) folder for usage examples, including:
 
-```go
-logger := logger.New("info", os.Stdout)
-logger.Info("Hello, world!")
-```
+- Basic console logging
+- File logging
+- Console and file output
+- Log rotation with `lumberjack`
+- Dynamic log level changes
 
-### 2. Log to File
+## Notes
 
-```go
-file, _ := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-logger := logger.New("debug", file)
-logger.Debug("Saved to file")
-```
+- **Thread Safety**: Not thread-safe unless the underlying `io.Writer` is.
+- **Async Logging**: Use goroutines with proper synchronization.
+- **Customization**: Extend with zerolog features (e.g., custom fields, hooks).
 
-### 3. Log to Console and File
+## License
 
-```go
-file, _ := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-mw := io.MultiWriter(os.Stdout, file)
-logger := logger.New("info", mw)
-logger.Info("Dual output")
-```
-
-### 4. Log Rotation
-
-```go
-rotator := &lumberjack.Logger{
-    Filename:   "app.log",
-    MaxSize:    10, // MB
-    MaxBackups: 3,
-    MaxAge:     28, // days
-}
-logger := logger.New("warn", rotator)
-logger.Warn("Rotation enabled")
-```
-
-> *Note: Requires lumberjack package.*
->
-> ```bash
-> go get github.com/natefinch/lumberjack
-> ```
-
-### 5. Log Rotation + Console
-
-```go
-rotator := &lumberjack.Logger{
-    Filename:   "app.log",
-    MaxSize:    500, // MB
-    MaxBackups: 3,
-    MaxAge:     28, // days
-    Compress:   true,
-}
-mw := io.MultiWriter(os.Stdout, rotator)
-logger := logger.New("info", mw)
-logger.Info("Rotation and console")
-```
-
-### 6. Async Logging
-
-```go
-file, _ := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-logger := logger.New("error", file)
-go logger.Error("Async logging")
-```
-
-## Get Started
-
-```go
-import "github.com/Qntx/qutil/logger"
-```
-
-Simple yet powerful—logging, refined.
+MIT

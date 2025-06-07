@@ -25,6 +25,10 @@ const (
 	LevelNoLevel = Level(zerolog.NoLevel)
 )
 
+// CallerSkipFrameCount is the number of stack frames to skip to find the caller.
+// It is set to zerolog.CallerSkipFrameCount + 1 to account for the golog wrapper.
+var CallerSkipFrameCount = zerolog.CallerSkipFrameCount + 1
+
 func (l Level) String() string {
 	return zerolog.Level(l).String()
 }
@@ -86,10 +90,11 @@ var _ Interface = (*Logger)(nil)
 func New() *Logger {
 	return NewWith(
 		zerolog.New(os.Stdout).
+			Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 			Level(zerolog.InfoLevel).
 			With().
 			Timestamp().
-			Caller().
+			CallerWithSkipFrameCount(zerolog.CallerSkipFrameCount + 1).
 			Logger())
 }
 
