@@ -16,5 +16,3 @@ concurrency:
 jobs:
   go-test:
     uses: ipdxco/unified-github-workflows/.github/workflows/go-test.yml@v1.0
-    with:
-      go-test-skip-coverage: true
