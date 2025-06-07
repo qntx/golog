@@ -17,7 +17,7 @@ go get github.com/qntx/golog
 
 ## Usage
 
-See the [`examples/`](./examples) folder for usage examples, including:
+See the [`example/`](./example) folder for usage examples, including:
 
 - Basic console logging
 - File logging
