@@ -89,12 +89,11 @@ var _ Interface = (*Logger)(nil)
 //	l.Info("Starting application")
 func New() *Logger {
 	return NewWith(
-		zerolog.New(os.Stdout).
-			Output(zerolog.ConsoleWriter{Out: os.Stderr}).
+		zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).
 			Level(zerolog.InfoLevel).
 			With().
 			Timestamp().
-			CallerWithSkipFrameCount(zerolog.CallerSkipFrameCount + 1).
+			CallerWithSkipFrameCount(CallerSkipFrameCount).
 			Logger())
 }
 
