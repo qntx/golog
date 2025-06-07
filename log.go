@@ -70,7 +70,7 @@ type Interface interface {
 //	l := New()
 //	l.Info("Server started on port 8080")
 type Logger struct {
-	l zerolog.Logger // Embedded zerolog.Logger for efficiency.
+	l *zerolog.Logger // Embedded zerolog.Logger for efficiency.
 }
 
 var _ Interface = (*Logger)(nil)
@@ -104,12 +104,12 @@ func New() *Logger {
 //	l := NewWith(zerolog.New(os.Stdout))
 //	l.Debug("Debugging enabled")
 func NewWith(log zerolog.Logger) *Logger {
-	return &Logger{l: log}
+	return &Logger{l: &log}
 }
 
 // Level dynamically updates the logging level.
 func (l *Logger) Level(level Level) {
-	l.l = l.l.Level(zerolog.Level(level))
+	*l.l = l.l.Level(zerolog.Level(level))
 }
 
 // GetLevel returns the current logging level.
