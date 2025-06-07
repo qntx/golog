@@ -1,94 +1,184 @@
-// Package log is the logging library used by IPFS & libp2p
-// (https://github.com/ipfs/go-ipfs).
-package log
+// Package golog provides a flexible, high-performance logging system using zerolog.
+//
+// It supports leveled logging (debug, info, warn, error, fatal, panic) with timestamps and
+// caller information, designed for production-grade applications. Not thread-safe
+// unless the underlying io.Writer is.
+package golog
 
 import (
-	"time"
+	"os"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/rs/zerolog"
 )
 
-// StandardLogger provides API compatibility with standard printf loggers
-// eg. go-logging
-type StandardLogger interface {
-	Debug(args ...any)
+// Level represents a log severity level. Use the package variables as an enum.
+type Level zerolog.Level
+
+const (
+	LevelTrace   = Level(zerolog.TraceLevel)
+	LevelDebug   = Level(zerolog.DebugLevel)
+	LevelInfo    = Level(zerolog.InfoLevel)
+	LevelWarn    = Level(zerolog.WarnLevel)
+	LevelError   = Level(zerolog.ErrorLevel)
+	LevelFatal   = Level(zerolog.FatalLevel)
+	LevelPanic   = Level(zerolog.PanicLevel)
+	LevelNoLevel = Level(zerolog.NoLevel)
+)
+
+func (l Level) String() string {
+	return zerolog.Level(l).String()
+}
+
+// ParseLevel parses a string-based level and returns the corresponding Level.
+//
+// Supported strings are: DEBUG, INFO, WARN, ERROR, DPANIC, PANIC, FATAL, and
+// their lower-case forms. Returns an error if the level is invalid.
+func ParseLevel(level string) (Level, error) {
+	l, err := zerolog.ParseLevel(level)
+	return Level(l), err
+}
+
+// Interface defines the contract for logging operations.
+type Interface interface {
+	Trace(msg string)
+	Tracef(format string, args ...any)
+	Debug(msg string)
 	Debugf(format string, args ...any)
-	Error(args ...any)
-	Errorf(format string, args ...any)
-	Fatal(args ...any)
-	Fatalf(format string, args ...any)
-	Info(args ...any)
+	Info(msg string)
 	Infof(format string, args ...any)
-	Panic(args ...any)
-	Panicf(format string, args ...any)
-	Warn(args ...any)
+	Warn(msg string)
 	Warnf(format string, args ...any)
+	Error(msg string)
+	Errorf(format string, args ...any)
+	Fatal(msg string)
+	Fatalf(format string, args ...any)
+	Panic(msg string)
+	Panicf(format string, args ...any)
+	Level(level Level)
+	GetLevel() Level
 }
 
-// EventLogger extends the StandardLogger interface to allow for log items
-// containing structured metadata
-type EventLogger interface {
-	StandardLogger
+// Logger wraps a zerolog.Logger with a custom interface.
+//
+// Provides leveled logging with configurable timestamp and caller details.
+// Example:
+//
+//	l := New()
+//	l.Info("Server started on port 8080")
+type Logger struct {
+	l zerolog.Logger // Embedded zerolog.Logger for efficiency.
 }
 
-// Logger retrieves an event logger by name
-func Logger(system string) *ZapEventLogger {
-	if len(system) == 0 {
-		setuplog := getLogger("setup-logger")
-		setuplog.Error("Missing name parameter")
-		system = "undefined"
-	}
+var _ Interface = (*Logger)(nil)
 
-	logger := getLogger(system)
-	skipLogger := logger.Desugar().WithOptions(zap.AddCallerSkip(1)).Sugar()
-
-	return &ZapEventLogger{
-		system:        system,
-		SugaredLogger: *logger,
-		skipLogger:    *skipLogger,
-	}
+// New creates a new Logger with default configuration.
+//
+// Defaults:
+//   - Level: LevelInfo
+//   - Writer: os.Stdout
+//   - Timestamps: Enabled
+//   - Caller Info: Enabled
+//
+// Example:
+//
+//	l := New()
+//	l.Info("Starting application")
+func New() *Logger {
+	return NewWith(
+		zerolog.New(os.Stdout).
+			Level(zerolog.InfoLevel).
+			With().
+			Timestamp().
+			Caller().
+			Logger())
 }
 
-// ZapEventLogger implements the EventLogger and wraps a go-logging Logger
-type ZapEventLogger struct {
-	zap.SugaredLogger
-	// used to fix the caller location when calling Warning and Warningf.
-	skipLogger zap.SugaredLogger
-	system     string
+// NewWith creates a new Logger with the specified configuration.
+//
+// Example:
+//
+//	l := NewWith(zerolog.New(os.Stdout))
+//	l.Debug("Debugging enabled")
+func NewWith(log zerolog.Logger) *Logger {
+	return &Logger{l: log}
 }
 
-// Warning is for compatibility
-// Deprecated: use Warn(args ...interface{}) instead
-func (logger *ZapEventLogger) Warning(args ...any) {
-	logger.skipLogger.Warn(args...)
+// Level dynamically updates the logging level.
+func (l *Logger) Level(level Level) {
+	l.l = l.l.Level(zerolog.Level(level))
 }
 
-// Warningf is for compatibility
-// Deprecated: use Warnf(format string, args ...interface{}) instead
-func (logger *ZapEventLogger) Warningf(format string, args ...any) {
-	logger.skipLogger.Warnf(format, args...)
+// GetLevel returns the current logging level.
+func (l *Logger) GetLevel() Level {
+	return Level(l.l.GetLevel())
 }
 
-// FormatRFC3339 returns the given time in UTC with RFC3999Nano format.
-func FormatRFC3339(t time.Time) string {
-	return t.UTC().Format(time.RFC3339Nano)
+// Trace logs a message at the trace level.
+func (l *Logger) Trace(msg string) {
+	l.l.Trace().Msg(msg)
 }
 
-func WithStacktrace(l *ZapEventLogger, level LogLevel) *ZapEventLogger {
-	copyLogger := *l
-	copyLogger.SugaredLogger = *copyLogger.SugaredLogger.Desugar().
-		WithOptions(zap.AddStacktrace(zapcore.Level(level))).Sugar()
-	copyLogger.skipLogger = *copyLogger.SugaredLogger.Desugar().WithOptions(zap.AddCallerSkip(1)).Sugar()
-	return &copyLogger
+// Tracef logs a formatted message at the trace level.
+func (l *Logger) Tracef(format string, args ...any) {
+	l.l.Trace().Msgf(format, args...)
 }
 
-// WithSkip returns a new logger that skips the specified number of stack frames when reporting the
-// line/file.
-func WithSkip(l *ZapEventLogger, skip int) *ZapEventLogger {
-	copyLogger := *l
-	copyLogger.SugaredLogger = *copyLogger.SugaredLogger.Desugar().
-		WithOptions(zap.AddCallerSkip(skip)).Sugar()
-	copyLogger.skipLogger = *copyLogger.SugaredLogger.Desugar().WithOptions(zap.AddCallerSkip(1)).Sugar()
-	return &copyLogger
+// Debug logs a message at the debug level.
+func (l *Logger) Debug(msg string) {
+	l.l.Debug().Msg(msg)
+}
+
+// Debugf logs a formatted message at the debug level.
+func (l *Logger) Debugf(format string, args ...any) {
+	l.l.Debug().Msgf(format, args...)
+}
+
+// Info logs a message at the info level.
+func (l *Logger) Info(msg string) {
+	l.l.Info().Msg(msg)
+}
+
+// Infof logs a formatted message at the info level.
+func (l *Logger) Infof(format string, args ...any) {
+	l.l.Info().Msgf(format, args...)
+}
+
+// Warn logs a message at the warn level.
+func (l *Logger) Warn(msg string) {
+	l.l.Warn().Msg(msg)
+}
+
+// Warnf logs a formatted message at the warn level.
+func (l *Logger) Warnf(format string, args ...any) {
+	l.l.Warn().Msgf(format, args...)
+}
+
+// Error logs a message at the error level.
+func (l *Logger) Error(msg string) {
+	l.l.Error().Msg(msg)
+}
+
+// Errorf logs a formatted message at the error level.
+func (l *Logger) Errorf(format string, args ...any) {
+	l.l.Error().Msgf(format, args...)
+}
+
+// Fatal logs a message at the fatal level and exits with os.Exit(1).
+func (l *Logger) Fatal(msg string) {
+	l.l.Fatal().Msg(msg)
+}
+
+// Fatalf logs a formatted message at the fatal level and exits with os.Exit(1).
+func (l *Logger) Fatalf(format string, args ...any) {
+	l.l.Fatal().Msgf(format, args...)
+}
+
+// Panic logs a message at the panic level and calls panic().
+func (l *Logger) Panic(msg string) {
+	l.l.Panic().Msg(msg)
+}
+
+// Panicf logs a formatted message at the panic level and calls panic().
+func (l *Logger) Panicf(format string, args ...any) {
+	l.l.Panic().Msgf(format, args...)
 }
