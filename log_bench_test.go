@@ -18,9 +18,11 @@ import (
 
 func BenchmarkSimpleInfo(b *testing.B) {
 	l := golog.New()
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+
+	for range b.N {
 		l.Info("test")
 	}
 }
@@ -29,28 +31,36 @@ var logString = "String, IDK what to write, let's punch a keyboard. jkdlsjklfdjf
 
 func BenchmarkFormatInfo(b *testing.B) {
 	l := golog.New()
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+
+	for i := range b.N {
 		l.Infof("test %d %s", i, logString)
 	}
 }
 
 func BenchmarkFormatInfoMulti(b *testing.B) {
 	l := golog.New()
+
 	var wg sync.WaitGroup
+
 	goroutines := 16
 	run := func() {
 		for i := range b.N / goroutines {
 			l.Infof("test %d %s", i, logString)
 		}
+
 		wg.Done()
 	}
+
 	wg.Add(goroutines)
 	b.ResetTimer()
 	b.ReportAllocs()
+
 	for range goroutines {
 		go run()
 	}
+
 	wg.Wait()
 }

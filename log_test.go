@@ -28,6 +28,7 @@ func TestNewWith(t *testing.T) {
 	assert.Equal(t, golog.LevelDebug, l.GetLevel(), "Level should match custom logger")
 
 	l.Debug("debug message")
+
 	var logEntry map[string]any
 	err := json.Unmarshal(buf.Bytes(), &logEntry)
 	require.NoError(t, err, "Log output should be valid JSON")
@@ -108,6 +109,7 @@ func TestLogLevels(t *testing.T) {
 		t.Run(tt.level, func(t *testing.T) {
 			buf.Reset()
 			tt.logFunc(tt.message)
+
 			var logEntry map[string]any
 			err := json.Unmarshal(buf.Bytes(), &logEntry)
 			require.NoError(t, err, "Log output should be valid JSON")
@@ -123,6 +125,7 @@ func TestFormattedLog(t *testing.T) {
 	logger := golog.NewWith(zerolog.New(&buf).Level(zerolog.InfoLevel))
 
 	logger.Infof("Hello, %s! You are %d years old.", "Alice", 30)
+
 	var logEntry map[string]any
 	err := json.Unmarshal(buf.Bytes(), &logEntry)
 	require.NoError(t, err, "Log output should be valid JSON")
@@ -139,6 +142,7 @@ func TestPanic(t *testing.T) {
 		if r := recover(); r == nil {
 			t.Fatal("Expected panic but none occurred")
 		}
+
 		var logEntry map[string]any
 		err := json.Unmarshal(buf.Bytes(), &logEntry)
 		require.NoError(t, err, "Log output should be valid JSON")

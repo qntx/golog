@@ -39,6 +39,7 @@ func (l Level) String() string {
 // their lower-case forms. Returns an error if the level is invalid.
 func ParseLevel(level string) (Level, error) {
 	l, err := zerolog.ParseLevel(level)
+
 	return Level(l), err
 }
 
