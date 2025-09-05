@@ -2,11 +2,11 @@ package main
 
 import (
 	"io"
-	"log" // Standard log package for printing errors during setup
+	"log"
 	"os"
 
-	"github.com/qntx/golog" // Assuming your module path
-	"github.com/rs/zerolog" // We need zerolog for advanced configuration
+	gologzerolog "github.com/qntx/golog/zerolog"
+	"github.com/rs/zerolog"
 )
 
 func main() {
@@ -36,11 +36,11 @@ func main() {
 		Level(zerolog.DebugLevel). // Set a base level for the zerolog instance
 		With().
 		Timestamp().
-		CallerWithSkipFrameCount(golog.CallerSkipFrameCount). // Caller will be based on where golog's methods are called
+		CallerWithSkipFrameCount(gologzerolog.CallerSkipFrameCount). // Caller will be based on where golog's methods are called
 		Logger()
 
 	// Create a golog.Logger using NewWith.
-	logger := golog.NewWith(multiLoggerInstance)
+	logger := gologzerolog.NewWith(multiLoggerInstance)
 
 	// Log some messages
 	logger.Info("This informational message goes to both console and file.")

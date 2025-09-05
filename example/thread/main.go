@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qntx/golog"
+	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
 )
@@ -33,11 +33,11 @@ func main() {
 		Level(zerolog.DebugLevel). // Set a base level
 		With().
 		Timestamp().
-		CallerWithSkipFrameCount(golog.CallerSkipFrameCount). // Ensure correct caller info
+		CallerWithSkipFrameCount(gologzerolog.CallerSkipFrameCount). // Ensure correct caller info
 		Logger()
 
 	// Create a golog.Logger using NewWith.
-	logger := golog.NewWith(asyncLoggerInstance)
+	logger := gologzerolog.NewWith(asyncLoggerInstance)
 
 	logger.Info("Starting application with thread-safe, non-blocking logger.")
 

@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/natefinch/lumberjack"
-	"github.com/qntx/golog"
+	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
 )
 
@@ -31,11 +31,11 @@ func main() {
 		Level(zerolog.DebugLevel).
 		With().
 		Timestamp().
-		CallerWithSkipFrameCount(golog.CallerSkipFrameCount).
+		CallerWithSkipFrameCount(gologzerolog.CallerSkipFrameCount).
 		Logger()
 
 	// Create a golog.Logger using NewWith.
-	logger := golog.NewWith(rotatingFileLoggerInstance)
+	logger := gologzerolog.NewWith(rotatingFileLoggerInstance)
 
 	// Log a bunch of messages to potentially trigger rotation.
 	// In a real application, these would be actual log events.

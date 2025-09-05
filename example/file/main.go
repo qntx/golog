@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/qntx/golog"
+	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
 )
 
@@ -25,10 +26,10 @@ func main() {
 
 	// Create a zerolog.Logger instance that writes to the file.
 	// We are not using ConsoleWriter here because we want JSON output in the file.
-	fileLoggerInstance := zerolog.New(file).With().Timestamp().CallerWithSkipFrameCount(golog.CallerSkipFrameCount).Logger()
+	fileLoggerInstance := zerolog.New(file).With().Timestamp().CallerWithSkipFrameCount(gologzerolog.CallerSkipFrameCount).Logger()
 
 	// Create a golog.Logger using NewWith.
-	logger := golog.NewWith(fileLoggerInstance)
+	logger := gologzerolog.NewWith(fileLoggerInstance)
 
 	// Log some messages
 	logger.Info("This is an informational message logged to the file.")
