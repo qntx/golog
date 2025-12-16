@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/qntx/golog"
-	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
+	"golog.qntx.fun"
+	gologzerolog "golog.qntx.fun/zerolog"
 )
 
 func TestNewDefaultLevel(t *testing.T) {

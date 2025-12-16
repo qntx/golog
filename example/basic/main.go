@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/qntx/golog"
-	"github.com/qntx/golog/zerolog"
+	"golog.qntx.fun"
+	"golog.qntx.fun/zerolog"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module github.com/qntx/golog
+module golog.qntx.fun
 
 go 1.23.8
 

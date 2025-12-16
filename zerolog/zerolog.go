@@ -6,7 +6,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/qntx/golog"
+	"golog.qntx.fun"
 )
 
 // CallerSkipFrameCount is the number of stack frames to skip to find the caller.

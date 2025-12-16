@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
+	gologzerolog "golog.qntx.fun/zerolog"
 )
 
 func main() {
