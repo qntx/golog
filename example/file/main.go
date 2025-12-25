@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/qntx/golog"
+	gologzerolog "github.com/qntx/golog/zerolog"
 	"github.com/rs/zerolog"
-	"golog.qntx.fun"
-	gologzerolog "golog.qntx.fun/zerolog"
 )
 
 func main() {

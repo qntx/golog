@@ -5,7 +5,7 @@ import (
 
 	"github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
-	gologzerolog "golog.qntx.fun/zerolog"
+	gologzerolog "github.com/qntx/golog/zerolog"
 )
 
 func main() {
