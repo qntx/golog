@@ -1,4 +1,4 @@
-# Golog
+# Go log
 
 A minimalist, high-performance logging library built on [`zerolog`](https://github.com/rs/zerolog).
 
@@ -32,3 +32,5 @@ See the [`example/`](./example) folder for usage examples, including:
 - **Customization**: Extend with zerolog features (e.g., custom fields, hooks).
 
 ## License
+
+MIT
